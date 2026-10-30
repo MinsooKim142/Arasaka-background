@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0d">
+  <meta name="description" content="An offline, interactive Arasaka security terminal wallpaper. Built for your desktop.">
+  <title>ARASAKA — Security Terminal</title>
+  <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="collection.css">
+  <script src="assets/mantis-art.js" defer></script>
+  <script src="collection.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="svg-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="emblem" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" stroke-width="13"/>
+        <path d="M100 174V80M100 132 59 95M100 132 141 95" fill="none" stroke="currentColor" stroke-width="12" stroke-linejoin="round"/>
+        <circle cx="100" cy="65" r="24" fill="currentColor"/>
+        <circle cx="54" cy="96" r="23" fill="currentColor"/>
+        <circle cx="146" cy="96" r="23" fill="currentColor"/>
+      </symbol>
+      <symbol id="emblem-militech" viewBox="0 0 200 200"><path d="M24 35h152l12 12v106l-12 12H24l-12-12V47Z" fill="none" stroke="currentColor" stroke-width="6"/><path d="M36 139V61h25l39 40 39-40h25v78h-25V99l-39 38-39-38v40Z" fill="currentColor"/><path d="M36 28h128M36 172h128" stroke="currentColor" stroke-width="3"/></symbol>
+      <symbol id="emblem-kangtao" viewBox="0 0 200 200"><path d="M100 15 185 100l-85 85-85-85Z" fill="none" stroke="currentColor" stroke-width="7"/><path d="m100 37 63 63-63 63-63-63Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M64 67h17v66H64Zm24 33 33-33h23l-33 33 33 33h-23Z" fill="currentColor"/><path d="M100 5v22m0 146v22M5 100h22m146 0h22" stroke="currentColor" stroke-width="3"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 3 3-1 2 3 3-1 1-3 3-1 2-3-2-2 1-3-3-3-3 1-2-3Z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1"/><path d="M8 21h8m-4-4v4"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    </defs>
+  </svg>
+
+  <main id="wallpaper" class="wallpaper" aria-label="Arasaka live wallpaper">
+    <div class="ambient-glow" aria-hidden="true"></div>
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="texture" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="scan-sweep" aria-hidden="true"></div>
+    <div class="edge-rail" aria-hidden="true"><span>ARASAKA OS / V.3.14.080 — AUTHORIZED PERSONNEL ONLY</span></div>
+    <div class="corner corner-tl" aria-hidden="true"></div><div class="corner corner-tr" aria-hidden="true"></div>
+    <div class="corner corner-bl" aria-hidden="true"></div><div class="corner corner-br" aria-hidden="true"></div>
+    <div class="edition-art" aria-hidden="true"><span id="edition-ghost"></span><span class="edition-corner" id="edition-stamp"></span></div>
+
+    <header class="topbar chrome">
+      <div class="top-brand"><span class="tiny-emblem"><svg><use class="brand-emblem-use" href="#emblem"/></svg></span><span><span id="top-brand-name">ARASAKA</span><span class="brand-separator">/</span><span class="muted" id="top-network">CORPORATE NETWORK</span></span></div>
+      <div class="top-actions">
+        <span class="system-state"><span class="status-dot"></span>SYSTEM SECURE</span>
+        <span class="action-divider"></span>
+        <button id="pause-button" class="icon-button" title="Pause motion (Space)" aria-label="Pause motion" aria-pressed="false"><svg><use href="#i-pause"/></svg></button>
+        <button id="fullscreen-button" class="icon-button" title="Fullscreen (F)" aria-label="Enter fullscreen"><svg><use href="#i-expand"/></svg></button>
+        <button id="settings-button" class="icon-button" title="Customize (S)" aria-label="Customize wallpaper" aria-expanded="false" aria-controls="settings"><svg><use href="#i-settings"/></svg></button>
+      </div>
+    </header>
+
+    <section class="terminal" aria-label="Corporate security terminal">
+      <div class="identity">
+        <button id="emblem-button" class="emblem-button" aria-label="Run local terminal diagnostics" title="Run diagnostics"><svg class="emblem"><use class="brand-emblem-use" href="#emblem"/></svg></button>
+        <div class="wordmark" id="brand-wordmark">arasaka</div>
+        <div class="corporation" id="brand-caption">CORPORATION</div>
+      </div>
+      <div class="terminal-panel">
+        <div class="panel-heading">
+          <span class="security-label">SECURITY LOGIN</span>
+          <div class="clock-block"><time id="clock" class="clock">00:00:00</time><div id="date" class="date">0000.00.00 / THU</div></div>
+        </div>
+        <form id="login-form" class="login-form" autocomplete="off">
+          <label class="sr-only" for="uid">Operator ID</label>
+          <span class="input-prefix" aria-hidden="true">UID_</span>
+          <input id="uid" name="uid" maxlength="20" spellcheck="false" aria-describedby="login-hint" aria-label="Operator ID" placeholder="" autocapitalize="characters">
+          <span class="input-caret" aria-hidden="true"></span>
+          <button class="login-button" type="submit" aria-label="Connect operator"><svg><use href="#i-arrow"/></svg></button>
+        </form>
+        <div class="connection-track" aria-hidden="true"><span class="track-slashes">///////////</span><span class="track-line"><span></span></span></div>
+        <div class="terminal-data">
+          <div><span>CURR_NETWORK:</span> <b id="network-id">ACN002077</b></div>
+          <div><span>NL_PORT_STATUS:</span> <b id="port-status">OPEN</b><span class="data-separator">/</span><span id="operator-status">AWAITING AUTH</span></div>
+        </div>
+        <div class="terminal-message" id="login-hint" role="status" aria-live="polite"><span class="message-marker">›</span> <span id="message">ENTER YOUR OPERATOR ID TO CONNECT</span></div>
+      </div>
+    </section>
+
+    <section class="blueprint" aria-label="Mantis blade engineering wallpaper">
+      <div class="blueprint-heading"><div><span class="eyebrow">ARASAKA / ENGINEERING DIVISION</span><h2>MANTIS <span>BLADES</span></h2><p>CYBERWARE SCHEMATIC — MODEL 001</p></div><div class="blueprint-issue"><span>TECHNICAL FILE</span><strong>04</strong><time id="blueprint-clock">00:00:00</time></div></div>
+      <div class="blueprint-drawing"><img src="assets/mantis-blueprint.svg" alt="Original technical line drawing of a cybernetic forearm and articulated blade"><button class="blueprint-point point-edge" data-part="edge" aria-label="Inspect blade edge"><span>01</span></button><button class="blueprint-point point-actuator" data-part="actuator" aria-label="Inspect neural actuator"><span>02</span></button><button class="blueprint-point point-link" data-part="link" aria-label="Inspect wrist assembly"><span>03</span></button></div>
+      <div class="blueprint-footer"><div><span class="blueprint-badge">ARASAKA RESEARCH</span><p id="blueprint-detail" aria-live="polite">SELECT A CALLOUT TO INSPECT THE ASSEMBLY</p></div><span class="blueprint-warning">△ RESTRICTED TECHNOLOGY<br><small>CONCEPT SCHEMATIC / LOCAL SIMULATION</small></span></div>
+    </section>
+
+    <aside class="telemetry chrome" aria-label="Terminal information">
+      <div class="telemetry-line"><span class="telemetry-index">01</span><span>SECURITY TERMINAL</span><span class="telemetry-rule"></span><span class="live-mark">LIVE</span></div>
+      <div class="telemetry-sub">NIGHT CITY <span>NC / SECTOR 07 / ACN.02077</span></div>
+      <div class="mini-activity" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>LOCAL SIMULATION</span></div>
+    </aside>
+
+    <div class="bottom-brand"><span class="bottom-wordmark" id="bottom-wordmark">arasaka</span><span class="bottom-brand-rule"></span><span class="japanese" id="bottom-caption" lang="ja">アラサカ社</span></div>
+    <nav class="wallpaper-dock chrome" aria-label="Wallpaper controls">
+      <button id="clean-button" title="Hide controls (H)"><svg><use href="#i-eye"/></svg><span>WALLPAPER MODE</span></button><span class="dock-divider"></span><button id="setup-button"><svg><use href="#i-monitor"/></svg><span>DESKTOP SETUP</span></button>
+    </nav>
+    <div class="clean-hint">PRESS <kbd>H</kbd> TO SHOW CONTROLS</div>
+    <button id="restore-button" class="restore-button icon-button" aria-label="Show wallpaper controls" title="Show controls (H)"><svg><use href="#i-settings"/></svg></button>
+  </main>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside id="settings" class="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+    <div class="drawer-heading"><div><span class="eyebrow">PERSONALIZE YOUR TERMINAL</span><h1 id="settings-title">Configuration<span>_</span></h1></div><button id="close-settings" class="icon-button" aria-label="Close configuration"><svg><use href="#i-close"/></svg></button></div>
+    <div class="settings-scroll">
+      <section class="setting-section collection-section"><h2><span>00</span> WALLPAPER COLLECTION</h2><div class="preset-grid" role="group" aria-label="Wallpaper collection">
+        <button class="preset-card selected" data-preset="classic" aria-pressed="true"><span class="preset-thumb thumb-classic"><svg><use href="#emblem"/></svg><i></i></span><strong>Arasaka / Classic</strong><small>Your original red terminal</small></button>
+        <button class="preset-card" data-preset="ceramic" aria-pressed="false"><span class="preset-thumb thumb-ceramic"><svg><use href="#emblem"/></svg><i></i></span><strong>Arasaka / Ceramic</strong><small>White shell. Red signal.</small></button>
+        <button class="preset-card" data-preset="militech" aria-pressed="false"><span class="preset-thumb thumb-militech"><svg><use href="#emblem-militech"/></svg><i></i></span><strong>Militech / Field Ops</strong><small>Graphite & tactical gold</small></button>
+        <button class="preset-card" data-preset="kangtao" aria-pressed="false"><span class="preset-thumb thumb-kangtao"><svg><use href="#emblem-kangtao"/></svg><i></i></span><strong>Kang Tao / Precision</strong><small>Orange smart systems</small></button>
+        <button class="preset-card preset-card-wide" data-preset="mantis" aria-pressed="false"><span class="preset-thumb thumb-mantis"><img src="assets/mantis-blueprint.svg" alt=""></span><span><strong>Mantis / Blueprint</strong><small>Designed for your Corsair setup</small></span><span class="preset-match">SET MATCH</span></button>
+      </div><p class="collection-note" id="preset-description">The original security terminal, just as you left it.</p></section>
+      <section class="setting-section"><h2><span>01</span> APPEARANCE</h2>
+        <label class="field-label" id="color-label">Signal color</label>
+        <div class="color-options" role="group" aria-labelledby="color-label">
+          <button class="color-option selected" data-theme="crimson" aria-pressed="true"><i style="--swatch:#ff2438"></i>Crimson</button>
+          <button class="color-option" data-theme="ice" aria-pressed="false"><i style="--swatch:#a3e5ff"></i>Ice</button>
+          <button class="color-option" data-theme="amber" aria-pressed="false"><i style="--swatch:#ffaf4d"></i>Amber</button>
+          <button class="color-option" data-theme="gold" aria-pressed="false"><i style="--swatch:#e4cd72"></i>Gold</button>
+          <button class="color-option" data-theme="orange" aria-pressed="false"><i style="--swatch:#ff773d"></i>Orange</button>
+        </div>
+        <div class="setting-row"><label for="layout">Composition</label><select id="layout"><option value="terminal">Security terminal</option><option value="emblem">Emblem only</option></select></div>
+        <div class="range-heading"><label for="scale">Terminal size</label><output id="scale-value" for="scale">100%</output></div><input id="scale" type="range" min="70" max="140" value="100" step="5">
+        <div class="range-heading"><label for="glow">Signal glow</label><output id="glow-value" for="glow">45%</output></div><input id="glow" type="range" min="0" max="100" value="45" step="5">
+      </section>
+      <section class="setting-section"><h2><span>02</span> ATMOSPHERE</h2>
+        <label class="toggle-row" for="scanlines"><span>CRT scanlines<small>A subtle analog texture</small></span><input id="scanlines" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+        <label class="toggle-row" for="parallax"><span>Cursor response<small>Gentle depth as you move</small></span><input id="parallax" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+        <label class="toggle-row" for="ambient"><span>Ambient particles<small>Drifting signal fragments</small></span><input id="ambient" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+        <label class="toggle-row" for="telemetry"><span>Peripheral details<small>Corner labels and terminal data</small></span><input id="telemetry" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+        <label class="toggle-row" for="powerSaver"><span>Power saver<small>Still atmosphere, live clock</small></span><input id="powerSaver" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      </section>
+      <section class="setting-section"><h2><span>03</span> CLOCK</h2><div class="setting-row"><label for="clockFormat">Time format</label><select id="clockFormat"><option value="24">24 hour</option><option value="12">12 hour</option></select></div><div class="setting-row"><label for="timezone">Time zone</label><select id="timezone"><option value="local">Your local time</option><option value="Asia/Tokyo">Tokyo</option><option value="America/New_York">New York</option><option value="Europe/London">London</option><option value="UTC">UTC</option></select></div></section>
+      <section class="setting-section export-section"><h2><span>04</span> TAKE IT TO YOUR DESKTOP</h2><button id="export-button" class="wide-button"><svg><use href="#i-download"/></svg>Export 4K wallpaper<span>PNG ↗</span></button><a id="export-result" class="export-result" hidden download>Save exported PNG ↗</a><p>A still image of your current design. For a live desktop, use Desktop setup.</p></section>
+      <section class="setting-section lock-section"><h2><span>05</span> LOCK SCREEN</h2><button id="lock-preview-button" class="wide-button"><svg><use href="#i-lock"/></svg>Lock-screen companion<span>PREVIEW ↗</span></button><p>A matching still with space for the system clock. Preview it before saving or applying.</p><button id="restore-system-button" class="text-button" hidden>Restore previous system picture</button></section>
+    </div>
+    <footer class="drawer-footer"><button id="reset-button">RESET DEFAULTS</button><span>ARASAKA OS <b>V.3.14</b></span></footer>
+  </aside>
+
+  <dialog id="setup-dialog" aria-labelledby="setup-title">
+    <div class="drawer-heading"><div><span class="eyebrow">BEYOND THE BROWSER</span><h1 id="setup-title">Your desktop. Upgraded.</h1></div><button id="close-setup" class="icon-button" aria-label="Close desktop setup"><svg><use href="#i-close"/></svg></button></div>
+    <p class="setup-intro">Keep this terminal running behind your apps with a wallpaper host.</p>
+    <div class="setup-card"><span class="platform-icon">⌘</span><div><h2>macOS</h2><p>Open <strong>Arasaka Wallpaper.app</strong> from the macOS package. It lives in your menu bar and fills every display. Choose <strong>Customize…</strong> to adjust your wallpaper.</p><a href="downloads/Arasaka-macOS.zip" download>Download macOS app <span>↗</span></a></div></div>
+    <div class="setup-card"><svg class="platform-icon"><use href="#i-monitor"/></svg><div><h2>Windows</h2><p>Extract the web package. In <strong>Lively Wallpaper</strong>, add its <strong>index.html</strong>. In <strong>Wallpaper Engine</strong>, drag the same file onto <strong>Create Wallpaper</strong>.</p><a href="downloads/Arasaka-Web-Wallpaper.zip" download>Download web wallpaper <span>↗</span></a></div></div>
+    <div class="setup-note"><span class="status-dot"></span>OFFLINE BY DESIGN<span>No accounts. No tracking. No audio.</span></div>
+    <p class="setup-footnote">Browser fullscreen is a preview. A live desktop needs the macOS app or a Windows wallpaper host. The macOS app is locally signed, not Apple notarized.</p>
+  </dialog>
+  <div id="lock-backdrop" class="lock-backdrop" hidden></div><section id="lock-dialog" role="dialog" aria-modal="true" hidden class="lock-dialog" aria-labelledby="lock-title"><div class="drawer-heading"><div><span class="eyebrow">MATCHING STILL / 4K</span><h1 id="lock-title">Lock-screen companion</h1></div><button id="close-lock" class="icon-button" aria-label="Close lock-screen preview"><svg><use href="#i-close"/></svg></button></div><div class="lock-preview-wrap"><img id="lock-preview-image" alt="Preview of your matching lock-screen image"><span class="lock-safe-label">SPACE RESERVED FOR YOUR SYSTEM CLOCK</span></div><div class="lock-dialog-content"><p id="lock-explanation">Save this still and choose it in your operating system’s lock-screen settings. The image has no frozen clock or operator ID.</p><div class="lock-actions"><a id="lock-download" class="wide-button" download>Save 4K PNG <svg><use href="#i-download"/></svg></a><button id="apply-lock-button" class="wide-button primary-button" hidden>Set desktop & lock screen <svg><use href="#i-arrow"/></svg></button></div><p id="lock-result" role="status" aria-live="polite"></p></div></section>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

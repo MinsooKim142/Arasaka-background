@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" fill="none">
+ <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" stroke="#9baebb" stroke-opacity=".09" stroke-width=".6"/></pattern><linearGradient id="steel"><stop stop-color="#e0e7e8" stop-opacity=".08"/><stop offset="1" stop-color="#d5e2e7" stop-opacity=".2"/></linearGradient></defs>
+ <path fill="url(#grid)" d="M0 0h1000v520H0z"/>
+ <g stroke="#aebfc9" stroke-width="1.4" stroke-linejoin="round">
+  <path d="m105 322 41-29 98 14 101 49 66 18 31 37-77 17-61-22-93-14-77-36Z" fill="url(#steel)"/>
+  <path d="m112 324 112 34 89 16 77 35m-245-99 103 11 94 47 59 21m-263-41 97 24 80 17 40 25m-114-52 8-39m61 65 11-40m52 57 15-37"/>
+  <path d="m181 323 29 1 2 45-24-6Zm57 9 23 6 8 40-25-5Zm52 20 23 9 5 29-20-5Zm45 19 19 5 13 25-20-5Z"/>
+  <path d="m376 407 30-42 37-18 37-1 23 20-8 30-30 29-36 8Z" fill="url(#steel)"/>
+  <path d="m399 409 18-34 28-12 29 1 9 13-7 20-22 18-24 5Z"/>
+  <path d="m458 351 13-34 34-26 29 2 23 27 10 31-12 15-22-20-10-31-12 3-20 31m-5-47 21 7 25 36m-20-42 19 3 22 39"/>
+  <path d="m496 366 33-17 28 2 24 18 9 26-10 13-14-20-19-12-27 7m23-24 3 12m17-3 6 12"/>
+  <path d="m494 386 38-3 25 13 12 25-10 12-19-25-30-5m18-17 1 14m21-8-2 15"/>
+  <path d="m473 411 35 4 23 18 1 19-15 3-10-19-24-7m21-11-4 11"/>
+  <circle cx="426" cy="391" r="11"/><circle cx="426" cy="391" r="4"/>
+  <path d="m305 316 19-52 58-44 39 7 37 55-4 58-26 12-27-53-48 39Z" fill="url(#steel)"/>
+  <path d="m319 308 18-38 48-35 23 4 34 48-2 44-10 4-24-51-43 4-24 31"/>
+  <path d="m352 259 34-28 18 1 5 14-34 28m-48 24 19-5 10 23m50-69 10 13-14 10"/>
+  <path d="m374 217 7-29 33-14 59 1 8 17-35 27-25 8Z"/>
+  <path d="m399 191 39-7 20 4-25 18-33 6Z"/>
+  <path d="m430 173 66-33 105-12 117-35 174-13-155 51-129 26-94 23-49 22-23-6Z" fill="url(#steel)"/>
+  <path d="m451 177 48-23 111-14 112-34 137-17-125 30-133 28-90 20-47 21Z"/>
+  <path d="m478 196 35-18m-13 8 7 9m9-14 7 8m7-14 7 8m9-13 7 8m9-13 7 8m9-12 7 8m9-12 7 8m10-12 6 7m10-11 6 7m10-11 6 7m10-11 6 7"/>
+  <path d="m417 222 22 21 23-10-10-22m-55 80 20 19m-91 18 16 15"/>
+  <circle cx="389" cy="254" r="7"/><circle cx="348" cy="310" r="5"/><circle cx="452" cy="371" r="5"/><circle cx="202" cy="346" r="4"/>
+ </g>
+ <g stroke="#f24c3e" stroke-width="1.6"><path d="m294 347 38-13 24 12-6 23-20 6Zm17 4 20-8 12 5-2 12-10 3Z"/><path d="m398 322 18-17 12 31-12 10Z"/><path d="m422 198 15-9 13 2-12 10Z"/>
+  <path d="M259 465h44l18-8 138 1 26 7h264l20 4-20 3H486l-27 6H321l-18-8h-44Z" fill="#ef4a3b" fill-opacity=".18"/>
+  <path d="M332 454v26m17-26v26m61-25v23m33-24v22m44-12v9m-224-7h49m185 3h242"/>
+ </g>
+ <g stroke="#aebfc9" stroke-width=".7" opacity=".6"><path d="m425 122 462-68m-465 62 2 13m461-80 3 13m-464 60 7-4m448-65-7 4M135 424h206m-204-7v14m203-14v14m-199-7 7-3m185 3-7-3M648 435v49m-6-47h12m-12 45h12M270 176h58l44 56M659 220h-75l-44-49M618 361h-26l-31 19" stroke-dasharray="3 3"/>
+  <path d="M25 20h16m-8-8v16m926-8h16m-8-8v16M25 502h16m-8-8v16m926-8h16m-8-8v16"/>
+ </g>
+ <g fill="#aebfc9" font-family="monospace" font-size="9" letter-spacing="1.2"><text x="640" y="69" transform="rotate(-8 640 69)">740 mm</text><text x="216" y="419">300 mm</text><text x="660" y="463">25 mm</text><text x="202" y="172">ACTUATOR / 02</text><text x="661" y="224">MONOMOLECULAR EDGE</text><text x="620" y="365">NEURAL LINK / 03</text><text x="319" y="496">BLADE ASSEMBLY / SECTION A—A / 1:4</text></g>
+</svg>

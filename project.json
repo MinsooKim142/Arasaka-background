@@ -1,0 +1,147 @@
+{
+  "title": "Night City — Wallpaper Collection",
+  "description": "Five offline wallpapers: Arasaka Classic, Ceramic, Militech, Kang Tao, and Mantis Blueprint. Matching lock-screen stills included.",
+  "type": "web",
+  "file": "index.html",
+  "preview": "assets/preview.jpg",
+  "general": {
+    "properties": {
+      "theme": {
+        "type": "combo",
+        "value": "auto",
+        "text": "Signal color",
+        "order": 0,
+        "options": [
+          {
+            "label": "Preset default",
+            "value": "auto"
+          },
+          {
+            "label": "Crimson",
+            "value": "crimson"
+          },
+          {
+            "label": "Ice",
+            "value": "ice"
+          },
+          {
+            "label": "Amber",
+            "value": "amber"
+          },
+          {
+            "label": "Gold",
+            "value": "gold"
+          },
+          {
+            "label": "Orange",
+            "value": "orange"
+          }
+        ]
+      },
+      "layout": {
+        "type": "combo",
+        "value": "terminal",
+        "text": "Composition",
+        "order": 1,
+        "options": [
+          {
+            "label": "Security terminal",
+            "value": "terminal"
+          },
+          {
+            "label": "Emblem only",
+            "value": "emblem"
+          }
+        ]
+      },
+      "operator": {
+        "type": "textinput",
+        "value": "",
+        "text": "Operator ID",
+        "order": 2
+      },
+      "scale": {
+        "type": "slider",
+        "value": 100,
+        "min": 70,
+        "max": 140,
+        "step": 5,
+        "text": "Terminal size",
+        "order": 3
+      },
+      "glow": {
+        "type": "slider",
+        "value": 45,
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "text": "Signal glow",
+        "order": 4
+      },
+      "scanlines": {
+        "type": "bool",
+        "value": true,
+        "text": "CRT scanlines",
+        "order": 5
+      },
+      "parallax": {
+        "type": "bool",
+        "value": true,
+        "text": "Cursor response",
+        "order": 6
+      },
+      "ambient": {
+        "type": "bool",
+        "value": true,
+        "text": "Ambient particles",
+        "order": 7
+      },
+      "telemetry": {
+        "type": "bool",
+        "value": true,
+        "text": "Peripheral details",
+        "order": 8
+      },
+      "powerSaver": {
+        "type": "bool",
+        "value": false,
+        "text": "Power saver",
+        "order": 9
+      },
+      "clean": {
+        "type": "bool",
+        "value": true,
+        "text": "Wallpaper mode (hide controls)",
+        "order": 10
+      },
+      "preset": {
+        "type": "combo",
+        "value": "classic",
+        "text": "Wallpaper collection",
+        "order": -1,
+        "options": [
+          {
+            "label": "Arasaka / Classic",
+            "value": "classic"
+          },
+          {
+            "label": "Arasaka / Ceramic",
+            "value": "ceramic"
+          },
+          {
+            "label": "Militech / Field Ops",
+            "value": "militech"
+          },
+          {
+            "label": "Kang Tao / Precision",
+            "value": "kangtao"
+          },
+          {
+            "label": "Mantis / Blueprint",
+            "value": "mantis"
+          }
+        ]
+      }
+    }
+  }
+}

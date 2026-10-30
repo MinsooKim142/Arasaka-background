@@ -1,0 +1,87 @@
+{
+  "preset": {
+    "type": "dropdown",
+    "value": 0,
+    "text": "Wallpaper collection",
+    "items": [
+      "Arasaka / Classic",
+      "Arasaka / Ceramic",
+      "Militech / Field Ops",
+      "Kang Tao / Precision",
+      "Mantis / Blueprint"
+    ]
+  },
+  "theme": {
+    "type": "dropdown",
+    "value": 0,
+    "text": "Signal color",
+    "items": [
+      "Preset default",
+      "Crimson",
+      "Ice",
+      "Amber",
+      "Gold",
+      "Orange"
+    ]
+  },
+  "layout": {
+    "type": "dropdown",
+    "value": 0,
+    "text": "Composition",
+    "items": [
+      "Security terminal",
+      "Emblem only"
+    ]
+  },
+  "operator": {
+    "type": "textbox",
+    "value": "",
+    "text": "Operator ID"
+  },
+  "scale": {
+    "type": "slider",
+    "value": 100,
+    "min": 70,
+    "max": 140,
+    "step": 5,
+    "text": "Terminal size"
+  },
+  "glow": {
+    "type": "slider",
+    "value": 45,
+    "min": 0,
+    "max": 100,
+    "step": 5,
+    "text": "Signal glow"
+  },
+  "scanlines": {
+    "type": "checkbox",
+    "value": true,
+    "text": "CRT scanlines"
+  },
+  "parallax": {
+    "type": "checkbox",
+    "value": true,
+    "text": "Cursor response"
+  },
+  "ambient": {
+    "type": "checkbox",
+    "value": true,
+    "text": "Ambient particles"
+  },
+  "telemetry": {
+    "type": "checkbox",
+    "value": true,
+    "text": "Peripheral details"
+  },
+  "powerSaver": {
+    "type": "checkbox",
+    "value": false,
+    "text": "Power saver"
+  },
+  "clean": {
+    "type": "checkbox",
+    "value": true,
+    "text": "Wallpaper mode (hide controls)"
+  }
+}
