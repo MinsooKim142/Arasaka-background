@@ -4,10 +4,10 @@
   const $ = id => document.getElementById(id);
   const root = document.documentElement;
   const stage = $('wallpaper');
-  const storageKey = 'arasaka.wallpaper.v1';
+  const storageKey = `arasaka.wallpaper.v1${document.body.dataset.defaultPreset ? '.second-screen' : ''}`;
   const collection = window.WallpaperCollection;
   const themes = collection.signals;
-  const defaults = { preset: 'classic', theme: 'crimson', layout: 'terminal', scale: 100, glow: 45, scanlines: true, parallax: true, ambient: true, telemetry: true, powerSaver: false, clockFormat: '24', timezone: 'local', operator: '' };
+  const defaults = { preset: document.body.dataset.defaultPreset || 'classic', theme: 'crimson', layout: 'terminal', scale: 100, glow: 45, scanlines: true, parallax: true, ambient: true, telemetry: true, powerSaver: false, clockFormat: '24', timezone: 'local', operator: '' };
   const zones = ['local', 'Asia/Tokyo', 'America/New_York', 'Europe/London', 'UTC'];
   const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   let settings = { ...defaults };
@@ -23,7 +23,7 @@
   let lockCameFromSettings = false;
   let lockReturnFocus;
   let isNative = !!window.webkit?.messageHandlers?.arasaka;
-  try { settings = normalize({ ...defaults, ...JSON.parse(localStorage.getItem(storageKey) || '{}') }); } catch { /* Private/file browsing may have no storage. */ }
+  if (!isNative) try { settings = normalize({ ...defaults, ...JSON.parse(localStorage.getItem(storageKey) || '{}') }); } catch { /* Private/file browsing may have no storage. */ }
 
   function normalize(value) {
     const next = { ...defaults };
@@ -40,8 +40,8 @@
   }
 
   function persist() {
+    if (isNative) { window.webkit.messageHandlers.arasaka.postMessage({ action: 'settings', settings }); return; }
     try { localStorage.setItem(storageKey, JSON.stringify(settings)); } catch { /* Wallpaper hosts can disable persistent browser storage. */ }
-    if (isNative) window.webkit.messageHandlers.arasaka.postMessage({ action: 'settings', settings });
   }
 
   function applySettings(patch, options = {}) {
@@ -57,7 +57,7 @@
     });
     document.querySelectorAll('.brand-emblem-use').forEach(use => use.setAttribute('href', `#${profile.symbol}`));
     $('top-brand-name').textContent = profile.brand;
-    $('top-network').textContent = settings.preset === 'mantis' ? 'RESEARCH & DEVELOPMENT' : settings.preset === 'militech' ? 'TACTICAL NETWORK' : settings.preset === 'kangtao' ? 'SMART SYSTEMS' : 'CORPORATE NETWORK';
+    $('top-network').textContent = settings.preset === 'editor' ? 'DEVELOPMENT WORKSPACE' : settings.preset === 'mantis' ? 'RESEARCH & DEVELOPMENT' : settings.preset === 'militech' ? 'TACTICAL NETWORK' : settings.preset === 'kangtao' ? 'SMART SYSTEMS' : 'CORPORATE NETWORK';
     $('brand-wordmark').textContent = $('bottom-wordmark').textContent = profile.wordmark;
     $('brand-caption').textContent = profile.caption;
     $('bottom-caption').textContent = profile.sub;
@@ -116,6 +116,7 @@
     $('date').textContent = `${date.year} | ${date.month} | ${date.day} / ${day}`;
     lastClock = { value, period: parts.dayPeriod || '', date: $('date').textContent };
     $('blueprint-clock').textContent = `${value}${parts.dayPeriod ? ` ${parts.dayPeriod}` : ''}`;
+    $('source-clock').textContent = `${value}${parts.dayPeriod ? ` ${parts.dayPeriod}` : ''}`;
   }
 
   function notify(text) {
@@ -239,7 +240,7 @@
     if (event.key.toLowerCase() === 'f') { event.preventDefault(); toggleFullscreen(); }
     if (event.code === 'Space' && event.target.tagName !== 'BUTTON') { event.preventDefault(); togglePause(); }
   });
-  window.addEventListener('storage', event => { if (event.key === storageKey && event.newValue) { try { applySettings(JSON.parse(event.newValue), { persist: false }); } catch { /* Ignore invalid settings from another tab. */ } } });
+  window.addEventListener('storage', event => { if (!isNative && event.key === storageKey && event.newValue) { try { applySettings(JSON.parse(event.newValue), { persist: false }); } catch { /* Ignore invalid settings from another tab. */ } } });
 
   // Only animate while visible and active. No WebGL, video, or network polling.
   const canvas = $('particles');
@@ -302,8 +303,10 @@
     button.disabled = true;
     try {
       updateClock();
-      const factor = 3840 / Math.max(width, height);
-      const output = await collection.render(settings, { width: Math.round(width * factor), height: Math.round(height * factor), cssWidth: width, clock: lastClock });
+      const exportWidth = isNative && hostContext.width ? hostContext.width : width;
+      const exportHeight = isNative && hostContext.height ? hostContext.height : height;
+      const factor = 3840 / Math.max(exportWidth, exportHeight);
+      const output = await collection.render(settings, { width: Math.round(exportWidth * factor), height: Math.round(exportHeight * factor), cssWidth: isNative ? (exportWidth >= exportHeight ? 1440 : 810) : width, clock: lastClock });
       const data = output.toDataURL('image/png');
       const filename = `${collection.presets[settings.preset].brand}-${settings.preset}-${output.width}x${output.height}.png`;
       if (isNative) window.webkit.messageHandlers.arasaka.postMessage({ action: 'export', data, filename });
@@ -381,7 +384,7 @@
   window.livelyPropertyListener = (name, value) => {
     if (name === 'clean') { setClean(!!value); return; }
     if (name === 'theme' && typeof value === 'number') value = ['auto', 'crimson', 'ice', 'amber', 'gold', 'orange'][value];
-    if (name === 'preset' && typeof value === 'number') value = ['classic', 'ceramic', 'militech', 'kangtao', 'mantis'][value];
+    if (name === 'preset' && typeof value === 'number') value = ['classic', 'ceramic', 'militech', 'kangtao', 'mantis', 'editor'][value];
     if (name === 'preset' && collection.presets[value]) { applySettings({ preset: value, theme: collection.presets[value].theme }); return; }
     if (name === 'layout' && typeof value === 'number') value = ['terminal', 'emblem'][value];
     if (Object.hasOwn(defaults, name)) applySettings({ [name]: value });
@@ -392,14 +395,29 @@
   window.Arasaka = {
     getSettings: () => ({ ...settings }),
     applySettings: patch => applySettings(patch, { persist: false }),
+    loadSettings: value => { settings = normalize({ ...defaults, ...value }); applySettings(settings, { persist: false }); },
     setPaused: value => { hostPaused = !!value; syncMotion(); },
     setPointer: (x, y) => { if (Number.isFinite(x) && Number.isFinite(y)) pointer = { x: Math.max(-.5, Math.min(.5, x)) * 13, y: Math.max(-.5, Math.min(.5, y)) * 10 }; },
     openSettings, setClean, openLockPreview,
-    setHostContext: value => { hostContext = value || {}; $('restore-system-button').hidden = !isNative || !hostContext.canRestore; },
+    setHostContext: value => {
+      hostContext = value || {}; $('restore-system-button').hidden = !isNative || !hostContext.canRestore;
+      const displays = hostContext.displays || [];
+      $('native-display-controls').hidden = !isNative; $('browser-display-help').hidden = isNative;
+      $('display-target').replaceChildren(); $('display-map').replaceChildren();
+      if (isNative) {
+        const all = document.createElement('option'); all.value = 'all'; all.textContent = 'All displays — same wallpaper'; $('display-target').append(all);
+        displays.forEach((display,index) => { const option = document.createElement('option'); option.value = display.id; option.textContent = `${index+1} — ${display.name}${display.primary ? ' (Main)' : ''} · ${display.width}×${display.height}`; $('display-target').append(option); const chip = document.createElement('span'); chip.textContent = `${index+1} / ${display.primary ? 'MAIN' : 'SECONDARY'}`; chip.classList.toggle('selected',hostContext.target === display.id || hostContext.target === 'all'); $('display-map').append(chip); });
+        $('display-target').value = hostContext.target || 'all'; $('pair-displays').disabled = displays.length < 2;
+        $('display-help').textContent = hostContext.target === 'all' ? 'Changes here replace individual assignments on all displays.' : displays.length < 2 ? 'Changes apply to this display. Connect a second display to use the pairing.' : 'Changes apply only to this display. Pairing keeps your main wallpaper and assigns Source to the secondary screens.';
+      }
+    },
     lockResult: (text, canRestore) => { $('lock-result').textContent = text; hostContext.canRestore = !!canRestore; $('restore-system-button').hidden = !canRestore; notify(text); },
     notify,
     exportWallpaper
   };
+  $('display-target').addEventListener('change', event => { if (isNative) window.webkit.messageHandlers.arasaka.postMessage({ action: 'selectDisplay', id: event.target.value }); });
+  $('pair-displays').addEventListener('click', () => { if (isNative) window.webkit.messageHandlers.arasaka.postMessage({ action: 'pairDisplays' }); });
+  window.SourceWallpaper.init();
   resize();
   applySettings(settings, { persist: false });
   const parameters = new URLSearchParams(location.search);
@@ -413,5 +431,6 @@
     link.href = '#';
     link.addEventListener('click', event => { event.preventDefault(); notify('Import this folder’s index.html into your wallpaper host. The macOS app is supplied separately.'); });
   });
+  if (document.body.dataset.package === 'web') $('second-package-link').hidden = true;
   setInterval(() => { if (!document.hidden) updateClock(); }, 1000);
 })();

@@ -9,7 +9,9 @@
   <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="collection.css">
+  <link rel="stylesheet" href="editor.css">
   <script src="assets/mantis-art.js" defer></script>
+  <script src="editor.js" defer></script>
   <script src="collection.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -93,6 +95,15 @@
       <div class="blueprint-footer"><div><span class="blueprint-badge">ARASAKA RESEARCH</span><p id="blueprint-detail" aria-live="polite">SELECT A CALLOUT TO INSPECT THE ASSEMBLY</p></div><span class="blueprint-warning">△ RESTRICTED TECHNOLOGY<br><small>CONCEPT SCHEMATIC / LOCAL SIMULATION</small></span></div>
     </section>
 
+    <section class="source-workspace" aria-label="Arasaka code editor wallpaper">
+      <div class="source-caption"><span>PROPERTY OF ARASAKA CORPORATION</span><span>LOCAL WORKSPACE / 02</span></div>
+      <div class="source-surface"><nav class="source-tabs" aria-label="Editor files"><button data-source-file="security.ts" aria-pressed="true"><span class="source-file-icon">TS</span>security.ts</button><button data-source-file="terminal.json" aria-pressed="false"><span class="source-file-icon">{ }</span>terminal.json</button><button data-source-file="README.md" aria-pressed="false">README.md</button></nav>
+        <div class="source-layout"><aside class="source-explorer" aria-label="File explorer"><h2>EXPLORER</h2><button id="source-tree-toggle" aria-expanded="true" aria-controls="source-tree"><span class="source-chevron">⌄</span>ARASAKA / LOCAL</button><div id="source-tree"><div class="source-folder">⌄ src</div><button data-source-file="security.ts" aria-pressed="true">security.ts</button><button data-source-file="terminal.json" aria-pressed="false">terminal.json</button><button data-source-file="README.md" aria-pressed="false">README.md</button></div></aside>
+          <div class="source-pane"><div class="source-breadcrumb" id="source-breadcrumb">src / security.ts</div><div class="source-lines" id="source-lines" aria-label="Decorative sample code"></div><section class="source-terminal" aria-label="Local terminal preview"><h3>TERMINAL</h3><p>ARASAKA LOCAL SESSION</p><p>› workspace initialized</p><p>› standby<time id="source-clock">00:00:00</time></p></section></div>
+        </div><div class="source-status"><span>main / LOCAL SIMULATION</span><span>UTF-8　 <span id="source-language">TypeScript</span>　 Ln 14, Col 3</span></div>
+      </div>
+    </section>
+
     <aside class="telemetry chrome" aria-label="Terminal information">
       <div class="telemetry-line"><span class="telemetry-index">01</span><span>SECURITY TERMINAL</span><span class="telemetry-rule"></span><span class="live-mark">LIVE</span></div>
       <div class="telemetry-sub">NIGHT CITY <span>NC / SECTOR 07 / ACN.02077</span></div>
@@ -111,12 +122,14 @@
   <aside id="settings" class="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
     <div class="drawer-heading"><div><span class="eyebrow">PERSONALIZE YOUR TERMINAL</span><h1 id="settings-title">Configuration<span>_</span></h1></div><button id="close-settings" class="icon-button" aria-label="Close configuration"><svg><use href="#i-close"/></svg></button></div>
     <div class="settings-scroll">
+      <section class="setting-section display-section"><h2><span>↗</span> DISPLAY ASSIGNMENT</h2><div id="native-display-controls" hidden><label class="sr-only" for="display-target">Display to customize</label><select id="display-target"></select><div id="display-map" class="display-map" aria-label="Connected displays"></div><button id="pair-displays" class="wide-button">Pair main + editor <span>02 ↗</span></button><p id="display-help" class="display-help">Choose a display to customize it independently.</p></div><p id="browser-display-help" class="display-help">For your second monitor, select that screen in Lively or Wallpaper Engine, then choose Arasaka / Source. <a id="second-package-link" href="downloads/Arasaka-Second-Screen.zip" download>Download the second-screen package ↗</a></p></section>
       <section class="setting-section collection-section"><h2><span>00</span> WALLPAPER COLLECTION</h2><div class="preset-grid" role="group" aria-label="Wallpaper collection">
         <button class="preset-card selected" data-preset="classic" aria-pressed="true"><span class="preset-thumb thumb-classic"><svg><use href="#emblem"/></svg><i></i></span><strong>Arasaka / Classic</strong><small>Your original red terminal</small></button>
         <button class="preset-card" data-preset="ceramic" aria-pressed="false"><span class="preset-thumb thumb-ceramic"><svg><use href="#emblem"/></svg><i></i></span><strong>Arasaka / Ceramic</strong><small>White shell. Red signal.</small></button>
         <button class="preset-card" data-preset="militech" aria-pressed="false"><span class="preset-thumb thumb-militech"><svg><use href="#emblem-militech"/></svg><i></i></span><strong>Militech / Field Ops</strong><small>Graphite & tactical gold</small></button>
         <button class="preset-card" data-preset="kangtao" aria-pressed="false"><span class="preset-thumb thumb-kangtao"><svg><use href="#emblem-kangtao"/></svg><i></i></span><strong>Kang Tao / Precision</strong><small>Orange smart systems</small></button>
         <button class="preset-card preset-card-wide" data-preset="mantis" aria-pressed="false"><span class="preset-thumb thumb-mantis"><img src="assets/mantis-blueprint.svg" alt=""></span><span><strong>Mantis / Blueprint</strong><small>Designed for your Corsair setup</small></span><span class="preset-match">SET MATCH</span></button>
+        <button class="preset-card preset-card-wide" data-preset="editor" aria-pressed="false"><span class="preset-thumb thumb-editor"><span></span><span></span><span></span><span></span></span><span><strong>Arasaka / Source</strong><small>Minimal editor for your second screen</small></span><span class="preset-match">DISPLAY 02</span></button>
       </div><p class="collection-note" id="preset-description">The original security terminal, just as you left it.</p></section>
       <section class="setting-section"><h2><span>01</span> APPEARANCE</h2>
         <label class="field-label" id="color-label">Signal color</label>

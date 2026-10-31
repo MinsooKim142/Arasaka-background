@@ -2,7 +2,17 @@
 
 A quiet, interactive wallpaper collection based on your Arasaka references and white/red Corsair hardware. All designs are original vector recreations with live text, including a technical Mantis blade drawing inspired by your desk mat.
 
-## New in version 2
+## Version 3: second-screen Source editor
+
+**Arasaka / Source** adds a minimal coding workspace inspired by your reference terminal: three selectable files, a collapsible explorer, line numbers, muted red syntax, a cursor, and a local terminal pane. The code and status are visual samples; they do not execute commands or read your files. It adapts to both your landscape monitor arrangement and a portrait display.
+
+On **Mac**, open **Customize Wallpaper… → Display assignment**. Choose the display by its number, name, and resolution, then select its wallpaper. **Pair main + editor** preserves the main display's current choice and assigns Source to secondary screens. Individual settings are saved per display; reconnecting a known display recovers its assignment. Displays with a reported hardware serial use that identity; otherwise the app uses the macOS display identifier, which may need reassignment if the OS changes its numbering. Selecting **All displays — same wallpaper** only changes all assignments when you edit a setting. This explicit shared edit clears individual overrides. Existing version-2 preferences become the shared default. Native views do not share browser storage, so editing one screen cannot overwrite another through a storage event.
+
+On **Windows**, use `downloads/Arasaka-Second-Screen.zip`. Extract it, choose **Per-screen** layout in Lively's display controls, select your second monitor, then import/apply that folder's `index.html`. Keep your existing main-screen wallpaper assigned to monitor 1. Lively supports [individual properties per display](https://github.com/rocksdanister/lively/wiki/Web-Guide-IV-%3A-Interaction). In Wallpaper Engine, select your second display and assign this web project separately. The dedicated package starts on Source, while the full collection retains Classic as its default. Windows hosts have not been run on this Mac.
+
+Use **Export 4K wallpaper** for a static PNG. The Mac export uses the selected display's aspect ratio. Ready-made landscape and portrait PNGs are supplied separately. The Mac build is now in `dist/DualDisplay/Arasaka Wallpaper.app`; earlier builds stay separate. Quit your old app before opening the update. `npm run test:displays` checks legacy migration, independent edits, pairing, reconnection, and the explicit shared reset.
+
+## Wallpaper collection
 
 Open **Customize Wallpaper…** and select a card in **Wallpaper collection**:
 
@@ -13,6 +23,7 @@ Open **Customize Wallpaper…** and select a card in **Wallpaper collection**:
 | Militech / Field Ops | Tactical gold, shield insignia, and an industrial grid |
 | Kang Tao / Precision | Orange smart-link terminal and Chinese typography |
 | Mantis / Blueprint | Graphite cyberware schematic with interactive numbered callouts, matching the desk mat |
+| Arasaka / Source | Minimal red-accented coding workspace for a secondary monitor |
 
 Brand marks and engineering artwork are fan-made interpretations. Select a preset to load its matching signal color, then customize the color or other controls. Existing saved settings migrate to Classic. Emblem-only mode is available for every preset.
 
@@ -31,7 +42,7 @@ On **Windows**, save the companion PNG and select it in Settings → Personaliza
 ## Use it on your Mac
 
 1. Open `downloads/Arasaka-macOS.zip` and launch **Arasaka Wallpaper.app**. You can move the app to Applications if you like.
-2. The wallpaper appears behind your desktop icons. Click the Arasaka emblem in the menu bar → **Customize Wallpaper…** to change its appearance. Changes sync to all displays.
+2. The wallpaper appears behind your desktop icons. Click the Arasaka emblem in the menu bar → **Customize Wallpaper…**. Select a display, then change its appearance independently.
 3. Choose **Main Display Only** or **All Displays** in the menu. **Quit Arasaka Wallpaper** immediately removes the live layer and reveals your usual wallpaper.
 
 The app is a universal binary for Apple Silicon and Intel, requires macOS 12.3 or later, and has a local ad-hoc signature. It is not Apple-notarized; macOS may require approval in System Settings → Privacy & Security when copied to another computer. It requires no accessibility or screen-recording permissions. It changes your system wallpaper only when you choose **Set desktop & lock screen**, and does not add itself to login items. Add it to your Login Items manually if you want it at startup.
@@ -69,10 +80,11 @@ Preferences are saved locally, where browser storage is available. Wallpaper Eng
 
 ```sh
 npm run check
+npm run test:displays
 npm run build
 npm run build:mac
 ```
 
-The web build produces `dist/Arasaka-Web-Wallpaper` and `downloads/Arasaka-Web-Wallpaper.zip`. The macOS build uses the Xcode Command Line Tools to compile a universal app into `dist/Collection/Arasaka Wallpaper.app` and package `downloads/Arasaka-macOS.zip`. The version-1 build remains separate. Run the macOS build again after changing the web assets. There are no npm dependencies. `assets/mantis-art.js` is a generated inline copy of `assets/mantis-blueprint.svg` so still exports work safely offline, including in WebKit file views.
+The web build produces `dist/Arasaka-Web-Wallpaper`, `dist/Arasaka-Second-Screen`, and their corresponding ZIPs in `downloads/`. The macOS build uses the Xcode Command Line Tools to compile a universal app into `dist/DualDisplay/Arasaka Wallpaper.app` and package `downloads/Arasaka-macOS.zip`. Earlier builds remain separate. Run the macOS build again after changing the web assets. There are no npm dependencies. `assets/mantis-art.js` is a generated inline copy of `assets/mantis-blueprint.svg` so still exports work safely offline, including in WebKit file views.
 
 Original fan-made implementation for personal use. Arasaka/Cyberpunk branding belongs to its respective owners; this project is not affiliated with CD PROJEKT RED. Rajdhani SemiBold is bundled under the SIL Open Font License; see `assets/OFL-Rajdhani.txt`.

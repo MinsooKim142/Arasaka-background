@@ -7,6 +7,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private var statusItem: NSStatusItem!
     private var desktopWindows: [NSWindow] = []
     private var desktopViews: [WKWebView] = []
+    private var desktopScreenIDs: [String] = []
+    private var selectedDisplay = ""
     private var previewWindow: NSWindow?
     private var previewView: WKWebView?
     private var pauseItem: NSMenuItem!
@@ -25,10 +27,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         set { UserDefaults.standard.set(newValue, forKey: "wallpaperSettings") }
     }
     private var webRoot: URL { Bundle.main.resourceURL!.appendingPathComponent("Wallpaper", isDirectory: true) }
+    private var displayStore: DisplaySettings {
+        get { DisplaySettings(shared: settings, overrides: UserDefaults.standard.dictionary(forKey:"displayWallpaperSettings") as? [String:[String:Any]] ?? [:]) }
+        set { settings = newValue.shared; UserDefaults.standard.set(newValue.overrides,forKey:"displayWallpaperSettings") }
+    }
+    private func assignmentID(_ screen: NSScreen) -> String {
+        let id = CGDirectDisplayID((screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0)
+        let serial = CGDisplaySerialNumber(id)
+        return serial == 0 ? "display-\(id)" : "\(CGDisplayVendorNumber(id))-\(CGDisplayModelNumber(id))-\(serial)"
+    }
+    private func validateDisplaySelection() {
+        let ids = NSScreen.screens.map(assignmentID)
+        if selectedDisplay.isEmpty { selectedDisplay = UserDefaults.standard.string(forKey:"previewDisplayTarget") ?? ids.first ?? "all" }
+        if selectedDisplay != "all" && !ids.contains(selectedDisplay) { selectedDisplay = ids.first ?? "all" }
+        UserDefaults.standard.set(selectedDisplay,forKey:"previewDisplayTarget")
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         UserDefaults.standard.register(defaults: ["allDisplays": true, "pauseOnBattery": true])
+        validateDisplaySelection()
         makeMenu()
         rebuildDesktops()
         NotificationCenter.default.addObserver(self, selector: #selector(displaysChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
@@ -39,9 +57,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         center.addObserver(self, selector: #selector(didWake), name: NSWorkspace.screensDidWakeNotification, object: nil)
         batteryTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in self?.syncPause() }
         mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] _ in self?.trackPointer() }
-        if !UserDefaults.standard.bool(forKey: "hasLaunched") || !UserDefaults.standard.bool(forKey: "hasSeenCollection") {
+        if !UserDefaults.standard.bool(forKey: "hasLaunched") || !UserDefaults.standard.bool(forKey: "hasSeenDualDisplay") {
             UserDefaults.standard.set(true, forKey: "hasLaunched")
             UserDefaults.standard.set(true, forKey: "hasSeenCollection")
+            UserDefaults.standard.set(true, forKey: "hasSeenDualDisplay")
             showPreview()
         }
     }
@@ -64,6 +83,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         let menu = NSMenu()
         let title = NSMenuItem(title: "ARASAKA / SECURITY TERMINAL", action: nil, keyEquivalent: ""); title.isEnabled = false; menu.addItem(title)
         add(menu, "Customize Wallpaper…", #selector(showPreview), ",")
+        let pairItem = add(menu, "Pair Main + Source Editor", #selector(pairDisplays), "")
+        pairItem.isEnabled = NSScreen.screens.count > 1
         add(menu, "Lock-screen Companion…", #selector(showLockPreview), "l")
         restorePictureItem = add(menu, "Restore Previous System Picture", #selector(restoreSystemPicture), "")
         restorePictureItem.isEnabled = !desktopBackups.isEmpty
@@ -113,7 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private func rebuildDesktops() {
         for view in desktopViews { view.configuration.userContentController.removeScriptMessageHandler(forName: "arasaka"); view.stopLoading() }
         for window in desktopWindows { window.close() }
-        desktopViews.removeAll(); desktopWindows.removeAll()
+        desktopViews.removeAll(); desktopWindows.removeAll(); desktopScreenIDs.removeAll()
         let screens = UserDefaults.standard.bool(forKey: "allDisplays") ? NSScreen.screens : Array(NSScreen.screens.prefix(1))
         for screen in screens {
             let window = NSWindow(contentRect: screen.frame, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
@@ -125,6 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             let view = makeWebView(wallpaper: true)
             window.contentView = view
             desktopWindows.append(window); desktopViews.append(view)
+            desktopScreenIDs.append(assignmentID(screen))
             window.orderFrontRegardless()
         }
         syncPause()
@@ -168,24 +190,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     }
 
     private func sendHostContext(to webView: WKWebView) {
-        let frame = (previewWindow?.screen ?? NSScreen.screens.first)?.frame ?? NSRect(x:0,y:0,width:1440,height:900)
-        let context: [String:Any] = ["width":frame.width,"height":frame.height,"canRestore":!desktopBackups.isEmpty]
+        let screen = NSScreen.screens.first(where:{assignmentID($0) == selectedDisplay}) ?? NSScreen.screens.first
+        let frame = screen?.frame ?? NSRect(x:0,y:0,width:1440,height:900)
+        let displays: [[String:Any]] = NSScreen.screens.enumerated().map { index, screen in ["id":assignmentID(screen),"name":screen.localizedName,"width":Int(screen.frame.width*screen.backingScaleFactor),"height":Int(screen.frame.height*screen.backingScaleFactor),"primary":index == 0] }
+        let context: [String:Any] = ["width":frame.width,"height":frame.height,"canRestore":!desktopBackups.isEmpty,"displays":displays,"target":selectedDisplay]
         guard let data = try? JSONSerialization.data(withJSONObject: context), let json = String(data:data,encoding:.utf8) else { return }
         webView.evaluateJavaScript("window.Arasaka?.setHostContext(\(json))")
     }
 
     private func sendSettings(to webView: WKWebView) {
-        guard let data = try? JSONSerialization.data(withJSONObject: settings), let json = String(data: data, encoding: .utf8) else { return }
-        webView.evaluateJavaScript("window.Arasaka?.applySettings(\(json))")
+        let id = desktopViews.firstIndex(where:{$0 === webView}).map { desktopScreenIDs[$0] } ?? selectedDisplay
+        let value = id == "all" ? displayStore.shared : displayStore.effective(for:id)
+        guard let data = try? JSONSerialization.data(withJSONObject: value), let json = String(data: data, encoding: .utf8) else { return }
+        webView.evaluateJavaScript("window.Arasaka?.loadSettings(\(json))")
+    }
+
+    private func refreshAssignments() {
+        for view in desktopViews { sendSettings(to:view) }
+        if let view = previewView { sendSettings(to:view); sendHostContext(to:view) }
+    }
+    @objc private func pairDisplays() {
+        let screens = NSScreen.screens
+        guard let primary = screens.first, screens.count > 1 else { return }
+        var store = displayStore
+        store.pairEditor(primary:assignmentID(primary),secondaries:Array(screens.dropFirst()).map(assignmentID))
+        displayStore = store
+        selectedDisplay = assignmentID(screens[1]); validateDisplaySelection()
+        UserDefaults.standard.set(true,forKey:"allDisplays"); updateDisplayMenu(); rebuildDesktops(); refreshAssignments()
+        previewView?.evaluateJavaScript("window.Arasaka?.notify('Source editor assigned to secondary displays. Main display preserved.')")
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, message.frameInfo.request.url?.isFileURL == true, let body = message.body as? [String: Any], let action = body["action"] as? String else { return }
         switch action {
         case "settings":
-            guard let incoming = body["settings"] as? [String: Any], JSONSerialization.isValidJSONObject(incoming) else { return }
-            settings = incoming
-            for view in desktopViews + [previewView].compactMap({ $0 }) where view !== message.webView { sendSettings(to: view) }
+            guard message.webView === previewView, let incoming = body["settings"] as? [String: Any], JSONSerialization.isValidJSONObject(incoming) else { return }
+            var store = displayStore; store.set(incoming,target:selectedDisplay); displayStore = store
+            for view in desktopViews { sendSettings(to:view) }
+        case "selectDisplay":
+            guard message.webView === previewView, let id = body["id"] as? String, id == "all" || NSScreen.screens.contains(where:{assignmentID($0) == id}) else { return }
+            selectedDisplay = id; validateDisplaySelection(); refreshAssignments()
+        case "pairDisplays":
+            guard message.webView === previewView else { return }; pairDisplays()
         case "fullscreen": previewWindow?.toggleFullScreen(nil)
         case "export":
             guard let raw = body["data"] as? String, raw.hasPrefix("data:image/png;base64,"), let data = Data(base64Encoded: String(raw.dropFirst(22))), data.count < 50_000_000 else { return }
@@ -198,7 +244,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                 catch { self.previewView?.evaluateJavaScript("window.Arasaka?.notify('The image could not be saved. Try another location.')") }
             }
         case "setLockScreen":
-            guard let raw = body["data"] as? String, let data = pngData(raw), let preset = body["preset"] as? String, ["classic","ceramic","militech","kangtao","mantis"].contains(preset) else { return }
+            guard let raw = body["data"] as? String, let data = pngData(raw), let preset = body["preset"] as? String, ["classic","ceramic","militech","kangtao","mantis","editor"].contains(preset) else { return }
             setSystemPicture(data, preset: preset)
         case "restoreSystemWallpaper": restoreSystemPicture()
         default: break
@@ -228,7 +274,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         // This is the documented system desktop-image API. No lock-screen cache,
         // security setting, authentication UI, or FileVault asset is modified.
         let workspace = NSWorkspace.shared
-        let screens = UserDefaults.standard.bool(forKey:"allDisplays") ? NSScreen.screens : Array(NSScreen.screens.prefix(1))
+        let screens = selectedDisplay == "all" ? NSScreen.screens : NSScreen.screens.filter { assignmentID($0) == selectedDisplay }
         guard !screens.isEmpty else { reportLockResult("No display is available. Please try again."); return }
         do {
             let folder = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("Arasaka Wallpaper/Lock Screens",isDirectory:true)
@@ -285,10 +331,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private var effectivePause: Bool { paused || sleeping || (UserDefaults.standard.bool(forKey: "pauseOnBattery") && onBattery) }
     private func syncPause() { for view in desktopViews { view.evaluateJavaScript("window.Arasaka?.setPaused(\(effectivePause ? "true" : "false"))") } }
     private func trackPointer() {
-        guard !effectivePause, settings["powerSaver"] as? Bool != true, settings["parallax"] as? Bool != false, Date().timeIntervalSince(lastPointerUpdate) > 0.05 else { return }
+        guard !effectivePause, Date().timeIntervalSince(lastPointerUpdate) > 0.05 else { return }
         lastPointerUpdate = Date()
         let location = NSEvent.mouseLocation
         for (index, window) in desktopWindows.enumerated() {
+            let preferences = displayStore.effective(for:desktopScreenIDs[index])
+            if preferences["powerSaver"] as? Bool == true || preferences["parallax"] as? Bool == false { continue }
             let frame = window.frame
             let x = frame.contains(location) ? (location.x - frame.minX) / frame.width - 0.5 : 0
             let y = frame.contains(location) ? 0.5 - (location.y - frame.minY) / frame.height : 0
@@ -300,17 +348,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private func updateDisplayMenu() { let all = UserDefaults.standard.bool(forKey: "allDisplays"); allDisplaysItem?.state = all ? .on : .off; mainDisplayItem?.state = all ? .off : .on }
     @objc private func selectAllDisplays() { UserDefaults.standard.set(true, forKey: "allDisplays"); updateDisplayMenu(); rebuildDesktops() }
     @objc private func selectMainDisplay() { UserDefaults.standard.set(false, forKey: "allDisplays"); updateDisplayMenu(); rebuildDesktops() }
-    @objc private func displaysChanged() { rebuildDesktops() }
+    @objc private func displaysChanged() { validateDisplaySelection(); rebuildDesktops(); refreshAssignments(); if let menu = statusItem.menu { menu.items.first(where:{$0.action == #selector(pairDisplays)})?.isEnabled = NSScreen.screens.count > 1 } }
     @objc private func willSleep() { sleeping = true; syncPause() }
     @objc private func didWake() { sleeping = false; syncPause(); for window in desktopWindows { window.orderFrontRegardless() } }
     @objc private func showAbout() {
-        let alert = NSAlert(); alert.messageText = "Arasaka Wallpaper Collection"; alert.informativeText = "Five offline wallpapers: Arasaka Classic, Arasaka Ceramic, Militech, Kang Tao, and Mantis Blueprint.\n\nCustomize Wallpaper changes your live desktop. Lock-screen Companion prepares a matching still and optionally sets the underlying macOS system picture.\n\nOriginal fan-made artwork based on your references. Not affiliated with CD PROJEKT RED or Corsair.\n\nVersion 2.0.0"; alert.runModal()
+        let alert = NSAlert(); alert.messageText = "Arasaka Wallpaper Collection"; alert.informativeText = "Independent wallpapers per display, including Source: a minimal second-screen code editor. Collection: Arasaka Classic, Arasaka Ceramic, Militech, Kang Tao, and Mantis Blueprint.\n\nCustomize Wallpaper changes your live desktop. Lock-screen Companion prepares a matching still and optionally sets the underlying macOS system picture.\n\nOriginal fan-made artwork based on your references. Not affiliated with CD PROJEKT RED or Corsair.\n\nVersion 3.0.0"; alert.runModal()
     }
     @objc private func quit() { NSApp.terminate(nil) }
     func applicationWillTerminate(_ notification: Notification) { batteryTimer?.invalidate(); if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }; for window in desktopWindows { window.close() } }
 }
 
-let app = NSApplication.shared
-let delegate = AppDelegate()
-app.delegate = delegate
-app.run()
+@main struct WallpaperMain {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        withExtendedLifetime(delegate) { app.run() }
+    }
+}

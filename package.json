@@ -1,11 +1,12 @@
 {
   "name": "arasaka-wallpaper",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "description": "An offline, interactive Arasaka security terminal wallpaper",
   "scripts": {
     "dev": "node scripts/serve.mjs",
-    "check": "node --check app.js && node --check collection.js && node --check assets/mantis-art.js && node --check scripts/serve.mjs && node --check scripts/package.mjs",
+    "check": "node --check app.js && node --check editor.js && node --check collection.js && node --check assets/mantis-art.js && node --check scripts/serve.mjs && node --check scripts/package.mjs",
+    "test:displays": "xcrun swiftc -module-cache-path .build/module-cache native/macos/DisplaySettings.swift tests/DisplaySettingsTests.swift -o .build/display-settings-tests && .build/display-settings-tests",
     "build": "node scripts/package.mjs",
     "build:mac": "bash scripts/build-macos.sh"
   }

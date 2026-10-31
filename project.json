@@ -1,6 +1,6 @@
 {
   "title": "Night City — Wallpaper Collection",
-  "description": "Five offline wallpapers: Arasaka Classic, Ceramic, Militech, Kang Tao, and Mantis Blueprint. Matching lock-screen stills included.",
+  "description": "Six offline wallpapers with an Arasaka Source editor for a second display, live clocks, and matching lock-screen stills.",
   "type": "web",
   "file": "index.html",
   "preview": "assets/preview.jpg",
@@ -139,6 +139,10 @@
           {
             "label": "Mantis / Blueprint",
             "value": "mantis"
+          },
+          {
+            "label": "Arasaka / Source (second screen)",
+            "value": "editor"
           }
         ]
       }
